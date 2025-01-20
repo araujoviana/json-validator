@@ -1,6 +1,6 @@
 <script lang="ts">
     let textareaValue: string = "";
-    const textareaRes: number[] = [4, 50];
+    const textareaRes: number[] = [10, 50];
 
     const handleInput = () => {
         try {
@@ -12,11 +12,14 @@
     };
 </script>
 
-<textarea 
-    id="json-textarea" 
-    bind:value={textareaValue} 
-    placeholder="Paste or write your JSON here" 
-    rows={textareaRes[0]} 
-    cols={textareaRes[1]} 
+<textarea
+    class="textarea"
+    bind:value={textareaValue}
+    placeholder="Paste or write your JSON here"
+    rows={textareaRes[0]}
+    cols={textareaRes[1]}
     oninput={handleInput}
 ></textarea>
+
+<style>
+</style>
