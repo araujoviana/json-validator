@@ -3,16 +3,21 @@
     // import viteLogo from '/vite.svg'
     import Counter from "./lib/Counter.svelte";
     import Reader from "./lib/Reader.svelte";
+    import Inspector from "./lib/Inspector.svelte";
 </script>
 
 <main>
     <h1 class="title">My JSON Validator!</h1>
-    <Counter />
 
     <div id="json-reader-container">
-      <Reader/>
+        <Reader />
     </div>
 
+    <div class="content">
+        <Inspector />
+    </div>
+
+    <Counter />
 </main>
 
 <style>
