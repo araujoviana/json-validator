@@ -3,7 +3,7 @@
     // import viteLogo from '/vite.svg'
     import Counter from "./lib/Counter.svelte";
     import Reader from "./lib/Reader.svelte";
-    import Inspector from "./lib/Inspector.svelte";
+    import Errors from "./lib/Errors.svelte";
 </script>
 
 <main>
@@ -14,7 +14,7 @@
     </div>
 
     <div class="content">
-        <Inspector />
+        <Errors/>
     </div>
 
     <Counter />
