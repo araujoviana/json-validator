@@ -12,18 +12,43 @@
                 .split(",");
 
             if (splitJSON.map(keyInQuotes).join()) {
+                return "cool";
             }
             return "";
         }
     };
 
-    function keyInQuotes(pair: string): string {
+    // REVIEW too many splits
+
+    function keyInQuotes(pair: string): string | null {
         const key: string = pair.split(",")[0].trim(); // Extract and trim the key
-        return key.startsWith('"') && key.endsWith('"')
-            ? ""
+        return surroundedBy(key) === '"'
+            ? null
             : `Key ${key} isn't surrounded by double quotes.`;
     }
 
+    function valueIsValidDataType(pair: string): string {
+        const value: string = pair.split(",")[0];
+        switch (surroundedBy(value)) {
+            case '"': // String
+                // TODO check for double quotes INSIDE the string
+                return `${value} is a valid string.`;
+                case '{}':
+                return `${value} is a valid object.`
+        }
+
+        return "";
+    }
+
+    function surroundedBy(str: string): string | null {
+        const surrounds = ["'", "{", "["];
+
+        let surroundedWith = surrounds.find(
+            (surround) => str.trim().startsWith(surround) && str.endsWith(surround),
+        );
+
+        return surroundedWith || null;
+    }
 </script>
 
 <p>value: {$textareaValue}</p>
