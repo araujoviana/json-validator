@@ -1,16 +1,20 @@
 <script lang="ts">
     // This component is responsible for guiding the user to fix the errors on their JSON, no warnings.
+    import { onMount } from "svelte";
     import { textareaValue } from "./store";
+    import { gsap } from "gsap";
 
     type Predicate<T> = (value: any) => boolean;
 
-    const evalSplitJSON = () => {
+    function evalSplitJSON(str: string): string[] {
         try {
-            return JSON.parse($textareaValue) ? "This is valid JSON!" : "";
+            if (JSON.parse(str)) {
+                return [];
+            }
         } catch (e) {
-            const trimmedValue = $textareaValue.trim();
+            const trimmedValue = str.trim();
             if (!(surroundedBy(trimmedValue) === "{}")) {
-                return ["JSON isn't fully surrounded by curly braces "];
+                return ["JSON isn't fully surrounded by curly braces."];
             }
 
             const splitJSON = trimmedValue.slice(1, -1).split(",");
@@ -37,7 +41,7 @@
 
             return errors;
         }
-    };
+    }
 
     // REVIEW too many splits
 
@@ -131,25 +135,69 @@
         }
     };
 
-    // TODO Nested objects (recursion?)
-    // TODO key without value
-    // TODO Arrays WITH objects inside!
-    // TODO Arrays WITH arrays inside!
-    // TODO Entries without colons
+    // GSAP
 
-    // REVIEW errors should have priority for nested errors, since nested
-    // errors might fire other errors that aren't as relevant
+    let errorElements: HTMLDivElement[] = [];
+    $: if (errorElements.length) {
+        gsap.fromTo(
+            errorElements,
+            { opacity: 0, x: -100 },
+            { opacity: 1, x: 0, duration: 0.5, stagger: 0.1 },
+        );
+    }
+
+    // Removing errors
+
+    function hideError(index: number) {
+        const element = errorElements[index];
+        if (element) {
+            gsap.to(element, {
+                opacity: 0,
+                height: 0,
+                marginBottom: 0,
+                duration: 0.2,
+            });
+        }
+    }
 </script>
 
-<p>value: {$textareaValue}</p>
+<p>REMOVE THIS LATER: {$textareaValue}</p>
 
 <div class="inspector-error-list">
     {#if !$textareaValue.trim()}
         <p>JSON is empty!</p>
     {:else}
-        <p>{evalSplitJSON()}</p>
+        {#each evalSplitJSON($textareaValue) as error, index (error)}
+            <div
+                class="error-area block"
+                bind:this={errorElements[index]}
+                style="opacity: 0;"
+            >
+                <article class="message is-danger">
+                    <div class="message-header">
+                        <p>Error</p>
+                        <button
+                            class="delete is-medium"
+                            aria-label="delete"
+                            onclick={() => hideError(index)}
+                        ></button>
+                    </div>
+                    <div class="message-body">
+                        <div>{error}</div>
+                    </div>
+                </article>
+            </div>
+        {/each}
     {/if}
 </div>
 
 <style>
+    .message-header p {
+        margin: 0;
+    }
+
+    .message-body {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
 </style>

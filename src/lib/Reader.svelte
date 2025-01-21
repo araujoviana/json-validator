@@ -6,7 +6,7 @@
 
     const handleInput = () => {
         try {
-            textareaStatus = "textarea";
+            textareaValue ? textareaStatus = "textarea is-success" : "textarea"
             const parsedInput = JSON.parse($textareaValue);
             console.log(parsedInput);
         } catch (e) {

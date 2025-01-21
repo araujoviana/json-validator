@@ -17,7 +17,6 @@
         <Errors />
     </div>
 
-    <Counter />
 </main>
 
 <style>
