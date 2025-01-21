@@ -13,43 +13,58 @@
                 .slice(1, $textareaValue.length - 1)
                 .split(",");
 
-            if (splitJSON.map(keyInQuotes).join()) {
-                return "cool";
-            }
-            return "";
+            return splitJSON
+                .map(keyInQuotes)
+                .concat(splitJSON.map(valueIsValidDataType));
         }
     };
 
     // REVIEW too many splits
 
     function keyInQuotes(pair: string): string | null {
-        const key: string = pair.split(",")[0].trim(); // Extract and trim the key
+        const key: string = pair.split(":")[0].trim(); // Extract and trim the key
         return surroundedBy(key) === '"'
             ? null
-            : `Key ${key} isn't surrounded by double quotes.`;
+            : `Key ${key ? key : "empty key"} isn't surrounded by double quotes.`;
     }
 
-    function valueIsValidDataType(pair: string): string {
-        const value: string = pair.split(",")[0];
-        switch (surroundedBy(value)) {
-            case '"': // String
-                // TODO check for double quotes INSIDE the string
-                return `${value} is a valid string.`;
-                case '{}':
-                return `${value} is a valid object.`
-        }
+function valueIsValidDataType(pair: string): string | null {
+    const value: string = pair.split(":")[1].trim();
+    const surrounding = surroundedBy(value);
+    const type = surrounding ? surrounding : checkValue(value);
 
-        return "";
+    switch (type) {
+        case "{}":
+            return `${value} is a valid object.`;
+        case "[]":
+            return `${value} is a valid list`;
+        case "string":
+            return `${value} is a valid string`;
+        case "number":
+            return `${value} is a valid number`;
+        case "boolean":
+            return `${value} is a valid boolean`;
+        case "null":
+            return `${value} is a valid null`;
+        default:
+            return null;
     }
+}
 
     function surroundedBy(str: string): string | null {
-        const surrounds = ["'", "{", "["];
+        const encloses = ["{}", "[]", "''", '""'];
 
-        let surroundedWith = surrounds.find(
-            (surround) => str.trim().startsWith(surround) && str.endsWith(surround),
-        );
+        // Check if the string is surrounded by matching pairs
+        for (let pair of encloses) {
+            const open = pair[0];
+            const close = pair[1];
 
-        return surroundedWith || null;
+            if (str.trim().startsWith(open) && str.trim().endsWith(close)) {
+                return pair;
+            }
+        }
+
+        return null;
     }
 
     const checkValue = (value: string) => {
