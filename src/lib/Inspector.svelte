@@ -7,15 +7,23 @@
         try {
             return JSON.parse($textareaValue); // TODO make this readable
         } catch (e: any) {
-            let splitJSON = $textareaValue
+            const splitJSON = $textareaValue
                 .slice(1, $textareaValue.length - 1)
                 .split(",");
 
-            return splitJSON;
+            if (splitJSON.map(keyInQuotes).join()) {
+            }
+            return "";
         }
     };
 
-    const a = "";
+    function keyInQuotes(pair: string): string {
+        const key: string = pair.split(",")[0].trim(); // Extract and trim the key
+        return key.startsWith('"') && key.endsWith('"')
+            ? ""
+            : `Key ${key} isn't surrounded by double quotes.`;
+    }
+
 </script>
 
 <p>value: {$textareaValue}</p>
