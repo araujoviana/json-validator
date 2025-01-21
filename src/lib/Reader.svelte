@@ -1,12 +1,15 @@
 <script lang="ts">
     import { textareaValue } from "./store";
+ import Prism from 'prismjs'
 
     const textareaRes: number[] = [10, 50];
     let textareaStatus = "textarea"; // Change color based on results
 
     const handleInput = () => {
         try {
-            textareaValue ? textareaStatus = "textarea is-success" : "textarea"
+            textareaValue
+                ? (textareaStatus = "textarea is-success")
+                : "textarea";
             const parsedInput = JSON.parse($textareaValue);
             console.log(parsedInput);
         } catch (e) {
