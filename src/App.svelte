@@ -6,7 +6,7 @@
 </script>
 
 <main>
-    <h1 class="title box">JSON Validator</h1>
+    <h1 class="title">JSON Validator</h1>
 
     <div class="reader-container">
         <Reader />
