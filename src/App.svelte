@@ -14,7 +14,7 @@
     </div>
 
     <div class="content">
-        <Errors/>
+        <Errors />
     </div>
 
     <Counter />

@@ -9,68 +9,34 @@
             return JSON.parse($textareaValue) ? "This is valid JSON!" : "";
         } catch (e) {
             const trimmedValue = $textareaValue.trim();
-            if (surroundedBy(trimmedValue) !== "{}") {
-                return ["JSON isn't fully surrounded by curly braces."];
+            if (!(surroundedBy(trimmedValue) === "{}")) {
+                return ["JSON isn't fully surrounded by curly braces "];
             }
 
-            const errors: string[] = [];
-            validateObject(trimmedValue.slice(1, -1), errors);
+            const splitJSON = trimmedValue.slice(1, -1).split(",");
+            const errors = [];
+
+            splitJSON.forEach((pair) => {
+                const [key, value] = pair.split(":").map((part) => part.trim());
+                const keyError = checkKeyFormat(key);
+                const valueError = checkValueType(value);
+
+                if (keyError || valueError) {
+                    errors.push(keyError || valueError);
+                }
+            });
+
+            const misplacedCommasError = misplacedCommas(
+                trimmedValue.slice(1, -1).trim(),
+            );
+            if (misplacedCommasError) {
+                errors.unshift(misplacedCommasError);
+            }
+
+            console.log(splitJSON, errors, typeof errors);
+
             return errors;
         }
-    };
-
-    const validateObject = (content: string, errors: string[]) => {
-        const splitJSON = splitKeyValuePairs(content);
-
-        splitJSON.forEach((pair) => {
-            const [key, value] = pair.split(":").map((part) => part.trim());
-            const keyError = checkKeyFormat(key);
-            const valueError = checkValueType(value);
-
-            if (keyError) errors.push(keyError);
-            if (valueError) errors.push(valueError);
-
-            // Handle nested objects or arrays
-            if (surroundedBy(value) === "{}") {
-                validateObject(value.slice(1, -1), errors);
-            } else if (surroundedBy(value) === "[]") {
-                validateArray(value.slice(1, -1), errors);
-            }
-        });
-
-        const misplacedCommasError = misplacedCommas(content.trim());
-        if (misplacedCommasError) {
-            errors.unshift(misplacedCommasError);
-        }
-    };
-
-    const validateArray = (content: string, errors: string[]) => {
-        const elements = splitArrayElements(content);
-
-        elements.forEach((element) => {
-            if (surroundedBy(element) === "{}") {
-                validateObject(element.slice(1, -1), errors);
-            } else if (surroundedBy(element) === "[]") {
-                validateArray(element.slice(1, -1), errors);
-            } else {
-                const valueError = checkValueType(element.trim());
-                if (valueError) errors.push(valueError);
-            }
-        });
-    };
-
-    const splitKeyValuePairs = (content: string): string[] => {
-        return content
-            .split(",")
-            .map((pair) => pair.trim())
-            .filter((pair) => pair);
-    };
-
-    const splitArrayElements = (content: string): string[] => {
-        return content
-            .split(",")
-            .map((element) => element.trim())
-            .filter((element) => element);
     };
 
     // REVIEW too many splits
@@ -86,7 +52,12 @@
     const checkKeyFormat = (key: string) => {
         console.log(key, surroundedBy(key));
         if (surroundedBy(key) !== '""') {
-            return `Key '${key}' isn't surrounded by double quotes.`;
+            console.log("Checking for surrouding quotes in key", key);
+            if (key.length === 0) {
+                return `JSON contains an empty key.`;
+            } else {
+                return `Key '${key}' isn't surrounded by double quotes.`;
+            }
         }
         return null;
     };
@@ -97,14 +68,14 @@
         if (valueType === "invalid") {
             // HACK added 'n' to conform to english grammar
             let possibleType =
-                "n undefined or is there an open list or object somewhere";
+                "n undefined? This is probably the side-effect of another error.";
             if (typeof value === "string") {
                 if (value.startsWith("[") || value.endsWith("]")) {
                     // Possible list
-                    possibleType = " list, did you forget to close it";
+                    possibleType = " list, did you forget to close it?";
                 } else if (value.startsWith("{") || value.endsWith("}")) {
                     // Possible object
-                    possibleType = "n object, did you forget to close it";
+                    possibleType = "n object, did you forget to close it?";
                 } else if (
                     // Possible number
                     value.split(".").every((val) => {
@@ -112,13 +83,13 @@
                         return checkValue(val) === "number";
                     })
                 ) {
-                    possibleType = " number";
+                    possibleType = " number? Check for multiple periods.";
                 } else {
                     // Possible string
-                    possibleType = " string";
+                    possibleType = " string? Check for missing double quotes.";
                 }
             }
-            return `${value} is of an invalid type. Is it supposed to be a${possibleType}?`;
+            return `${value} is of an invalid type. Is it supposed to be a${possibleType}`;
         } else null;
     };
 
@@ -159,6 +130,15 @@
             return null;
         }
     };
+
+    // TODO Nested objects (recursion?)
+    // TODO key without value
+    // TODO Arrays WITH objects inside!
+    // TODO Arrays WITH arrays inside!
+    // TODO Entries without colons
+
+    // REVIEW errors should have priority for nested errors, since nested
+    // errors might fire other errors that aren't as relevant
 </script>
 
 <p>value: {$textareaValue}</p>
