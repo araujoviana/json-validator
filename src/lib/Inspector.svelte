@@ -2,6 +2,8 @@
     // This component is responsible for guiding the user to fix the errors on their JSON
     import { textareaValue } from "./store";
 
+    type Predicate<T> = (value: any) => boolean;
+
     // JSON Common errors
     const evalSplitJSON = () => {
         try {
@@ -49,6 +51,24 @@
 
         return surroundedWith || null;
     }
+
+    const checkValue = (value: string) => {
+        const predicates: [Predicate<any>, string][] = [
+            [isNull, "null"],
+            [isBoolean, "boolean"],
+            [isNumber, "number"],
+            [isInvalid, "invalid"],
+        ];
+
+        return predicates.find(([pred]) => pred(value))?.[1] ?? "invalid";
+    };
+
+    // TODO put this somewhere else
+    const isString: Predicate<any> = (value) => typeof value === "string";
+    const isNull: Predicate<any> = (value) => value === null;
+    const isBoolean: Predicate<any> = (value) => typeof value === "boolean";
+    const isNumber: Predicate<any> = (value) => typeof value === "number";
+    const isInvalid: Predicate<any> = () => true;
 </script>
 
 <p>value: {$textareaValue}</p>
