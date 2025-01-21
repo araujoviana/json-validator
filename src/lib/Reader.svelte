@@ -28,15 +28,35 @@
             reader.readAsText(file);
         }
     };
+
+    const handleDragOver = (event: DragEvent) => {
+        event.preventDefault();
+        textareaStatus = "textarea is-focused"; // ?
+    };
+
+    const handleDrop = (event: DragEvent) => {
+        event.preventDefault();
+        const file = event.dataTransfer?.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                $textareaValue = reader.result as string;
+            };
+            reader.readAsText(file);
+        }
+        textareaStatus = "textarea";
+    };
 </script>
 
 <textarea
     class={textareaStatus}
     bind:value={$textareaValue}
-    placeholder="Paste or write your JSON here"
+    placeholder="Drop you JSON here!"
     rows={textareaRes[0]}
     cols={textareaRes[1]}
     oninput={handleInput}
+    ondragover={handleDragOver}
+    ondrop={handleDrop}
 ></textarea>
 
 <div class="alt-inputs">
