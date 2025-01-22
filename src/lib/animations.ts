@@ -1,11 +1,6 @@
 import { gsap } from "gsap";
 
-/**
- * Hides an error message element with an animation.
- *
- * @param {HTMLElement} element The error message element to hide.
- */
-export function hideError(element: HTMLElement) {
+export function hideElement(element: HTMLElement) {
     if (element) {
         gsap.to(element, {
             opacity: 0,
@@ -16,12 +11,7 @@ export function hideError(element: HTMLElement) {
     }
 }
 
-/**
- * Animates a list of elements to appear with a staggered entrance effect.
- *
- * @param {HTMLElement[]} elements The array of elements to animate.
- */
-export function animateErrorList(elements: HTMLElement[]) {
+export function animateElementList(elements: HTMLElement[]) {
     if (elements.length) {
         gsap.fromTo(
             elements,

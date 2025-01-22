@@ -1,7 +1,7 @@
 <script lang="ts">
     import { textareaValue } from "./store";
     import { hasErrors } from "./json-utils";
-    import { hideError, animateErrorList } from "./animations";
+    import { hideElement, animateElementList } from "./animations";
 
     type Predicate<T> = (value: any) => boolean;
 
@@ -180,7 +180,7 @@
 
     // Error Handling: Trigger error animation if there are elements in the error list.
     $: if (errorElements.length) {
-        animateErrorList(errorElements);
+        animateElementList(errorElements);
     }
 
     /**
@@ -190,7 +190,7 @@
     function hideErrorAtIndex(index: number) {
         const element = errorElements[index];
         if (element) {
-            hideError(element);
+            hideElement(element);
         }
     }
 
