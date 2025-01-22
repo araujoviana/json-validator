@@ -28,11 +28,27 @@
             const splitJSON = trimmedValue.slice(1, -1).split(",");
             const errors: string[] = [];
 
+            // allows only alphanumeric characters, underscores, hyphens, and periods
+            const validKeyRegex = /^[a-zA-Z0-9_\-.]+$/;
+
+            // matches valid string values enclosed in double quotes,
+            // allowing escaped characters and Unicode escape sequences.
+            const validValueRegex =
+                /^"([^"\\]|\\["\\/bfnrt]|\\u[0-9a-fA-F]{4})*"$/;
+
             splitJSON.forEach((pair) => {
                 const [key, value] = pair.split(":").map((part) => part.trim());
 
                 if (!key || !value) {
                     errors.push("Invalid key-value pair format.");
+                }
+
+                if (!validKeyRegex.test(key.slice(1, -1))) {
+                    errors.push(`Key contains invalid characters: ${key}`);
+                }
+
+                if (!validValueRegex.test(value)) {
+                    errors.push(`Value contains invalid characters: ${value}`);
                 }
 
                 const keyError = checkKeyFormat(key);
