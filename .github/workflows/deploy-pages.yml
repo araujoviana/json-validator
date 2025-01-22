@@ -34,11 +34,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm' # REVIEW
+          # cache: 'npm' # REVIEW
       - name: Install pnpm
-        run: npm install -g pnpm # REVIEW
+        run: npm install -g pnpm@latest-10 # REVIEW
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile # REVIEW 
+        run: pnpm install # REVIEW 
       - name: Build
         run: pnpm build # REVIEW
       - name: Setup Pages
