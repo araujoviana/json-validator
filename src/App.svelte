@@ -3,6 +3,7 @@
     // import viteLogo from '/vite.svg'
     import Reader from "./lib/Reader.svelte";
     import Errors from "./lib/Errors.svelte";
+    import Result from "./lib/Result.svelte";
 </script>
 
 <main>
@@ -12,11 +13,15 @@
         <Reader />
     </div>
 
-    <div class="content">
+    <div class="validation-container">
         <Errors />
         <!-- TODO Add file input -->
     </div>
 
+    <div class="result-container">
+    <Result />
+        
+    </div>
     <!-- TODO footer (bulma has one)-->
 </main>
 
