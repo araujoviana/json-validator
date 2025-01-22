@@ -34,7 +34,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm' # REVIEW
+          cache: 'npm' # REVIEW
+      - name: Install pnpm
+        run: npm install -g pnpm # REVIEW
       - name: Install dependencies
         run: pnpm install --frozen-lockfile # REVIEW 
       - name: Build
