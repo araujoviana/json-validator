@@ -1,7 +1,6 @@
 <script lang="ts">
     import { textareaValue } from "./store";
-    import { gsap } from "gsap";
-    import { hasErrors, formatJSON } from "./utils";
+    import { hasErrors, formatJSON } from "./json-utils";
 
     $: console.log("SUCCESSFUL VALIDATION", formatJSON($textareaValue));
 </script>

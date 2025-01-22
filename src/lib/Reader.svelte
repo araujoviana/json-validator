@@ -1,6 +1,6 @@
 <script lang="ts">
     import { textareaValue } from "./store";
-    import { hasErrors, formatJSON } from "./utils";
+    import { hasErrors, formatJSON } from "./json-utils";
 
     const textareaRes: number[] = [10, 50];
     let textareaStatus = "textarea"; // Change color based on results
@@ -8,7 +8,7 @@
     const handleInput = () => {
         if (hasErrors($textareaValue)) {
             textareaStatus = "textarea is-danger";
-            console.error("Invalid JSON", e);
+            console.error("Invalid JSON");
         } else {
             textareaValue
                 ? (textareaStatus = "textarea is-success")

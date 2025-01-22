@@ -1,7 +1,7 @@
 <script lang="ts">
     import { textareaValue } from "./store";
-    import { gsap } from "gsap";
-    import { hasErrors } from "./utils";
+    import { hasErrors } from "./json-utils";
+    import { hideError, animateErrorList } from "./animations";
 
     type Predicate<T> = (value: any) => boolean;
 
@@ -178,33 +178,23 @@
         }
     };
 
-    // GSAP
+    // Error Handling: Trigger error animation if there are elements in the error list.
+    $: if (errorElements.length) {
+        animateErrorList(errorElements);
+    }
 
     /**
-     * Hides an error message element with a smooth animation.
-     *
-     * @param {number} index The index of the error message element to hide in the errorElements array.
+     * Hide error at specific index in the error list.
+     * @param {number} index - The index of the error to hide.
      */
-    function hideError(index: number) {
+    function hideErrorAtIndex(index: number) {
         const element = errorElements[index];
         if (element) {
-            gsap.to(element, {
-                opacity: 0,
-                height: 0,
-                marginBottom: 0,
-                duration: 0.2,
-            });
+            hideError(element);
         }
     }
 
-    $: if (errorElements.length) {
-        gsap.fromTo(
-            errorElements,
-            { opacity: 0, x: -100 },
-            { opacity: 1, x: 0, duration: 0.5, stagger: 0.1 },
-        );
-    }
-
+    // Handle removed errors and update the previous errors list.
     $: {
         const currentErrors = evalSplitJSON($textareaValue) || [];
 
@@ -212,10 +202,11 @@
             (error) => !currentErrors.includes(error),
         );
 
+        // Hide removed errors
         removedErrors.forEach((removedError) => {
             const index = previousErrors.indexOf(removedError);
             if (index !== -1) {
-                hideError(index);
+                hideErrorAtIndex(index);
             }
         });
 
@@ -239,7 +230,7 @@
                         <button
                             class="delete is-medium"
                             aria-label="delete"
-                            onclick={() => hideError(index)}
+                            onclick={() => hideErrorAtIndex(index)}
                         ></button>
                     </div>
                     <div class="message-body">
