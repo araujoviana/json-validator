@@ -1,6 +1,7 @@
 <script lang="ts">
     import { textareaValue } from "./store";
     import { gsap } from "gsap";
+    import { hasErrors } from "./utils";
 
     type Predicate<T> = (value: any) => boolean;
 
@@ -17,10 +18,9 @@
     function evalSplitJSON(str: string): string[] {
         const trimmedValue = str.trim();
 
-        try {
-            JSON.parse(trimmedValue);
+        if (!hasErrors($textareaValue)) {
             return [];
-        } catch (e) {
+        } else {
             if (surroundedBy(trimmedValue) !== "{}") {
                 return ["JSON isn't fully surrounded by curly braces."];
             }

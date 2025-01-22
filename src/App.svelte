@@ -19,8 +19,7 @@
     </div>
 
     <div class="result-container">
-    <Result />
-        
+        <Result />
     </div>
     <!-- TODO footer (bulma has one)-->
 </main>

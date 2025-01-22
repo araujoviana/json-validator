@@ -1,29 +1,29 @@
 <script lang="ts">
     import { textareaValue } from "./store";
+    import { hasErrors, formatJSON } from "./utils";
 
     const textareaRes: number[] = [10, 50];
     let textareaStatus = "textarea"; // Change color based on results
 
     const handleInput = () => {
-        try {
+        if (hasErrors($textareaValue)) {
+            textareaStatus = "textarea is-danger";
+            console.error("Invalid JSON", e);
+        } else {
             textareaValue
                 ? (textareaStatus = "textarea is-success")
                 : "textarea";
             const parsedInput = JSON.parse($textareaValue);
             console.log(parsedInput);
-        } catch (e) {
-            textareaStatus = "textarea is-danger";
-            console.error("Invalid JSON", e);
         }
     };
 
     const handleFile = (event: Event) => {
         const file = (event.target as HTMLInputElement).files?.[0];
-
         if (file) {
             const reader = new FileReader();
             reader.onload = () => {
-                $textareaValue = reader.result as string;
+                textareaValue.set(reader.result as string);
             };
             reader.readAsText(file);
         }
@@ -36,11 +36,11 @@
 
     const handleDrop = (event: DragEvent) => {
         event.preventDefault();
-        const file = event.dataTransfer?.files[0];
+        const file = event.dataTransfer?.files?.[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = () => {
-                $textareaValue = reader.result as string;
+                textareaValue.set(reader.result as string);
             };
             reader.readAsText(file);
         }
