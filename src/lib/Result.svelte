@@ -5,7 +5,7 @@
     $: console.log("SUCCESSFUL VALIDATION", formatJSON($textareaValue));
 </script>
 
-<div class="inspector-success-area">
+<div class="inspector-success-area block">
     {#if !hasErrors($textareaValue)}
         <article class="message is-success">
             <div class="message-header">

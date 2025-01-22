@@ -15,7 +15,7 @@
      * @param str The input string to be evaluated as a JSON object.
      * @returns An array of error messages if the input string is not a valid JSON, otherwise an empty array.
      */
-    function evalSplitJSON(str: string): string[] {
+    function parseErrorsFromJSON(str: string): string[] {
         const trimmedValue = str.trim();
 
         if (!hasErrors($textareaValue)) {
@@ -43,14 +43,6 @@
                     errors.push("Invalid key-value pair format.");
                 }
 
-                if (!validKeyRegex.test(key.slice(1, -1))) {
-                    errors.push(`Key contains invalid characters: ${key}`);
-                }
-
-                if (!validValueRegex.test(value)) {
-                    errors.push(`Value contains invalid characters: ${value}`);
-                }
-
                 const keyError = checkKeyFormat(key);
                 const valueError = checkValueType(value);
 
@@ -59,6 +51,19 @@
                 }
                 if (valueError) {
                     errors.push(valueError);
+                }
+
+                if (!validKeyRegex.test(key.slice(1, -1))) {
+                    errors.push(`Key might contain invalid characters: ${key}`);
+                }
+
+                if (
+                    surroundedBy(value) == '""' &&
+                    !validValueRegex.test(value)
+                ) {
+                    errors.push(
+                        `Value might contain invalid characters: ${value}`,
+                    );
                 }
             });
 
@@ -194,7 +199,7 @@
         }
     };
 
-    // Error Handling: Trigger error animation if there are elements in the error list.
+    // Trigger error animation if there are elements in the error list.
     $: if (errorElements.length) {
         animateElementList(errorElements);
     }
@@ -212,7 +217,7 @@
 
     // Handle removed errors and update the previous errors list.
     $: {
-        const currentErrors = evalSplitJSON($textareaValue) || [];
+        const currentErrors = parseErrorsFromJSON($textareaValue) || [];
 
         const removedErrors = previousErrors.filter(
             (error) => !currentErrors.includes(error),
@@ -234,7 +239,7 @@
     {#if !$textareaValue.trim()}
         <p>JSON is empty!</p>
     {:else}
-        {#each evalSplitJSON($textareaValue) as error, index (error)}
+        {#each parseErrorsFromJSON($textareaValue) as error, index (error)}
             <div
                 class="error-area block"
                 bind:this={errorElements[index]}

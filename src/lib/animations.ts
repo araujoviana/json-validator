@@ -1,4 +1,5 @@
 import { gsap } from "gsap";
+// TODO docstrings
 
 export function hideElement(element: HTMLElement) {
     if (element) {

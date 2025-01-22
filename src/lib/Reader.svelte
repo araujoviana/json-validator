@@ -88,7 +88,7 @@
             class="button is-primary format-button"
             disabled={hasErrors($textareaValue)}
             onclick={() => {
-                textareaValue.set(formatJSON($textareaValue)as string);
+                textareaValue.set(formatJSON($textareaValue) as string);
             }}
         >
             <span class="icon is-small">
