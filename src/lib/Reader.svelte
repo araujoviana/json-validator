@@ -6,6 +6,7 @@
     let textareaStatus = "textarea"; // Change color based on results
 
     const handleInput = () => {
+        console.log("READER REPORTS", hasErrors($textareaValue), $textareaValue);
         if (hasErrors($textareaValue)) {
             textareaStatus = "textarea is-danger";
             console.error("Invalid JSON");

@@ -7,6 +7,8 @@
 
     let errorElements: HTMLDivElement[] = [];
     let previousErrors: string[] = [];
+    let addedErrors: string[] = [];
+    let removedErrors: string[] = [];
 
     /**
      * Evaluates a given string as a JSON object with key-value pairs and returns an array of error messages if the string is not a valid JSON.
@@ -25,6 +27,7 @@
                 return ["JSON isn't fully surrounded by curly braces."];
             }
 
+            // Removes {} to ease parsing
             const splitJSON = trimmedValue.slice(1, -1).split(",");
             const errors: string[] = [];
 
@@ -39,6 +42,7 @@
             splitJSON.forEach((pair) => {
                 const [key, value] = pair.split(":").map((part) => part.trim());
 
+                // Empty key or value
                 if (!key || !value) {
                     errors.push("Invalid key-value pair format.");
                 }
@@ -54,24 +58,41 @@
                 }
 
                 if (!validKeyRegex.test(key.slice(1, -1))) {
-                    errors.push(`Key might contain invalid characters: ${key}`);
+                    errors.push(`Key ${key} might contain invalid characters`);
                 }
 
+                // Checks for invalid characters on strings only
                 if (
                     surroundedBy(value) == '""' &&
                     !validValueRegex.test(value)
                 ) {
                     errors.push(
-                        `Value might contain invalid characters: ${value}`,
+                        `Value ${value} might contain invalid characters`,
                     );
+                }
+
+                if (value.startsWith("0")) {
+                    errors.push(`${value} has leading zeroes.`);
                 }
             });
 
             const misplacedCommasError = misplacedCommas(
                 trimmedValue.slice(1, -1).trim(),
             );
+            // These errors might produce additional errors so they're prioritised
             if (misplacedCommasError) {
                 errors.unshift(misplacedCommasError);
+            }
+
+            console.log(
+                "ERRORS REPORTS",
+                hasErrors($textareaValue),
+                $textareaValue,
+                errors,
+            );
+
+            if (errors.length < 1) {
+                errors.push("Unknown error.");
             }
 
             return errors;
@@ -118,13 +139,24 @@
     const checkValueType = (value: string) => {
         const valueType = checkValue(value);
 
-        if (valueType === "invalid") {
-            let possibleType =
-                "n undefined? This is probably the side-effect of another error.";
+        let possibleType =
+            "n undefined? This is probably the side-effect of another error.";
+
+        if (surroundedBy(value) == "{}" || surroundedBy(value) == "[]") {
+            console.log(`${value} is surrounded`);
+            if (hasErrors(value)) {
+                return `There was an error parsing the contents of ${value}.`;
+            }
+        } else if (valueType === "invalid") {
             if (typeof value === "string") {
                 if (value.startsWith("[") || value.endsWith("]")) {
+                    console.log(surroundedBy(value));
                     possibleType = " list, did you forget to close it?";
-                } else if (value.startsWith("{") || value.endsWith("}")) {
+                } else if (
+                    value.startsWith("{") ||
+                    (value.endsWith("}") && surroundedBy(value) != "{}")
+                ) {
+                    console.log(surroundedBy(value));
                     possibleType = "n object, did you forget to close it?";
                 } else if (
                     value
@@ -133,7 +165,8 @@
                 ) {
                     possibleType = " number? Check for multiple periods.";
                 } else {
-                    possibleType = " string? Check for missing double quotes.";
+                    possibleType =
+                        " string? Check for missing double quotes or invalid characters.";
                 }
             }
             return `${value} is of an invalid type. Is it supposed to be a${possibleType}`;
@@ -150,7 +183,13 @@
      */
     function surroundedBy(str: string): string | null {
         const encloses = ["{}", "[]", "''", '""'];
-        const trimmedStr = str.trim();
+        let trimmedStr;
+
+        if (typeof str === "undefined") {
+            return null;
+        } else {
+            trimmedStr = str.trim();
+        }
 
         for (let pair of encloses) {
             const open = pair[0];
@@ -215,22 +254,42 @@
         }
     }
 
-    // Handle removed errors and update the previous errors list.
     $: {
         const currentErrors = parseErrorsFromJSON($textareaValue) || [];
 
-        const removedErrors = previousErrors.filter(
+        addedErrors = currentErrors.filter(
+            (error) => !previousErrors.includes(error),
+        );
+        removedErrors = previousErrors.filter(
             (error) => !currentErrors.includes(error),
         );
 
-        // Hide removed errors
         removedErrors.forEach((removedError) => {
             const index = previousErrors.indexOf(removedError);
             if (index !== -1) {
-                hideErrorAtIndex(index);
+                const element = errorElements[index];
+                if (element) {
+                    hideElement(element);
+                    errorElements = errorElements.filter((_, i) => i !== index);
+                }
             }
         });
 
+        addedErrors.forEach((addedError) => {
+            const index = currentErrors.indexOf(addedError);
+            if (index !== -1) {
+                const element = errorElements[index];
+                if (!element) {
+                    // Create new element for the added error
+                    const newErrorElement = document.createElement("div");
+                    newErrorElement.classList.add("error-area", "block");
+                    errorElements.push(newErrorElement);
+                    animateElementList([newErrorElement]);
+                }
+            }
+        });
+
+        // Update previousErrors with currentErrors
         previousErrors = currentErrors;
     }
 </script>
@@ -239,7 +298,7 @@
     {#if !$textareaValue.trim()}
         <p>JSON is empty!</p>
     {:else}
-        {#each parseErrorsFromJSON($textareaValue) as error, index (error)}
+        {#each parseErrorsFromJSON($textareaValue) as error, index (index)}
             <div
                 class="error-area block"
                 bind:this={errorElements[index]}

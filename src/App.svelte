@@ -8,7 +8,10 @@
 </script>
 
 <main>
-    <h1 class="title">JSON Validator</h1>
+    <div class="title-area">
+        <h1 class="title">JSON Validator</h1>
+        <h3>by <a href="https://github.com/araujoviana">araujoviana</a></h3>
+    </div>
 
     <div class="reader-container">
         <Reader />
@@ -23,7 +26,6 @@
     <div class="result-container">
         <Result />
     </div>
-    <!-- TODO footer (bulma has one)-->
 </main>
 
 <style>

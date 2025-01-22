@@ -6,6 +6,12 @@
     let warningElements: HTMLDivElement[] = [];
     let previousWarnings: string[] = [];
 
+    /**
+     * Parses a JSON string and returns an array of warnings if the JSON is valid but contains certain mistakes
+     *
+     * @param str The JSON string to parse and check for warnings.
+     * @returns An array of warning messages or an empty array.
+     */
     function parseWarningsFromJSON(str: string): string[] {
         const trimmedValue = str.trim();
 
@@ -24,16 +30,19 @@
         splitJSON.forEach((pair) => {
             const [key, value] = pair.split(":").map((part) => part.trim());
 
+            // REVIEW
             if (keys.includes(key)) {
                 warnings.push(
-                    `JSON objects should not have multiple keys with the same name. Key ${key} is a duplicate.`,
+                    `JSON objects should avoid having multiple keys with the same name. Key ${key} is a duplicate.`,
                 );
             } else {
                 keys.push(key);
             }
 
             if (key === "") {
-                warnings.push(`${key ? key : "Empty key"} contains empty string value.`);
+                warnings.push(
+                    `${key ? key : "Empty key"} contains empty string value.`,
+                );
             }
         });
 
